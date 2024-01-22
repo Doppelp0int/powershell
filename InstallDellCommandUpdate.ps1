@@ -17,7 +17,7 @@ if ($Installed) {
 } else {
     Write-Host "Dell Command ist nicht auf diesem System installiert. Die Installation wird gestartet..."
 
-    $url = "https://downloads.dell.com/FOLDER10408436M/1/Dell-Command-Update-Windows-Universal-Application_1WR6C_WIN_5.0.0_A00.EXE"
+    $url = "https://dl.dell.com/FOLDER10791716M/1/Dell-Command-Update-Windows-Universal-Application_JCVW3_WIN_5.1.0_A00.EXE"
     $msiName = "Dell-Command-Update-Windows-Universal-Application_1WR6C_WIN_5.0.0_A00.EXE"
     $downloadPath = [System.IO.Path]::Combine([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile), $msiName)
 
