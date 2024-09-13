@@ -1,6 +1,6 @@
 <# 
 Installskript via Powershell um den Bums automatisch einrichten zu lassen, geht schneller und einfacher...
-12.09.2024 - V1.2
+12.09.2024 - V1.6
 #>
 
 # ===========================================  Step 1: - Hyper V Konfiguration ===========================================
