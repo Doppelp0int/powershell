@@ -1,11 +1,14 @@
 <# 
 Installskript via Powershell um den Bums automatisch einrichten zu lassen, geht schneller und einfacher...
-12.09.2024 - V1.6
+12.09.2024 - V1.2
 #>
 
 # ===========================================  Step 1: - Hyper V Konfiguration ===========================================
 
-Set-ExecutionPolicy Bypass -Scope Process -Force
+#Set-ExecutionPolicy Bypass -Scope Process -Force
+#Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+
+
 
 $feature = Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V
 $delay_msg = Start-Sleep -Seconds 5
@@ -80,6 +83,14 @@ if (-not (Test-Path -Path $outputPath)) {
 
 $vmName = "UbuntuServer"
 $vmPath = "C:\Hyper-V\UbuntuServer"
+
+# Prüfe, ob der Ordner bereits existiert
+if (Test-Path -Path $vmPath) {
+    Write-Host "Der Ordner $vmPath existiert bereits. Lösche den Ordner..."
+    Remove-Item -Path $vmPath -Recurse -Force
+    Write-Host "Ordner $vmPath wurde gelöscht. Bitte auch VM in Hyper-V löschen um das Rollout neu durchzuführen!"
+    Start-Sleep -Seconds 5
+}
 
 try {
     New-Item -Path $vmPath -ItemType Directory -Force
