@@ -17,17 +17,18 @@ function Check-WSL-Installation {
 
 # Funktion zur deinstallation bei problemen.
 function Uninstall-WSL{
-    dism.exe /online /disable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
-    dism.exe /online /disable-feature /featurename:VirtualMachinePlatform /all /norestart
+Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart
+Disable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -NoRestart
     wsl --uninstall
-    wsl --unregister Ubuntu
+    wsl --unregister ubuntu
 }
 
 # Funktion zur Installation von WSL
 function Install-WSL {
     Write-Host "INFO: WSL wird installiert..." -Fore Yellow
-    dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
-    dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -All -NoRestart
+Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -All -NoRestart
+
 
     # Setze WSL 2 als Standard
         Start-Process "wsl.exe" -ArgumentList "--set-default-version 2" -NoNewWindow
@@ -107,11 +108,9 @@ try {
     Install-Ubuntu
     Start-Sleep -Seconds 2
     Write-Host "INFO: Ubuntu wurde erfolgreich installiert und eingerichtet." -Fore Green
-    Start-Sleep -Seconds 2
     # Öffne den Portainer-Link
-    Write-Host "READY: Öffne Portainer...http://localhost:9000/#!/init/admin" -Fore Green
-    Start-Sleep -Seconds 2
-    Start-Process "https://localhost:9443/#!/init/admin -Installer wird geschlossen..."
+    Write-Host "READY: Öffne Portainer...https://localhost:9443/#!/init/admin -Installer wird geschlossen......" -Fore Green
+    Start-Process "https://localhost:9443/#!/init/admin"
     Start-Sleep -Seconds 5
     Exit
 } catch {
