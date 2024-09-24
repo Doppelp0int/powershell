@@ -30,20 +30,20 @@ function Check-WSL-Installation {
 }
 # Funktion zur deinstallation bei problemen.
 function Uninstall-WSL{
-	Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart
-	Disable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -NoRestart
+	Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart | Out-Null
+	Disable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -NoRestart | Out-Null
     wsl --uninstall
     wsl --unregister ubuntu
 }
 # Funktion zur Installation von WSL
 function Install-WSL {
     Write-Host "INFO: WSL wird installiert..." -Fore Yellow
-	Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -All -NoRestart
-	Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -All -NoRestart
+	Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -All -NoRestart | Out-Null
+	Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -All -NoRestart | Out-Null
     # Setze WSL 2 als Standard
-        Start-Process "wsl.exe" -ArgumentList "--set-default-version 2" -NoNewWindow
+        Start-Process "wsl.exe" -ArgumentList "--set-default-version 2" -NoNewWindow > $null
             Write-Host "INFO: WSL wird aktuallisiert..." -Fore Yellow
-        Start-Process "wsl.exe" -ArgumentList "--update" -NoNewWindow -Wait
+        Start-Process "wsl.exe" -ArgumentList "--update" -NoNewWindow -Wait | Out-Null
          Start-Sleep -Seconds 20
 
     Write-Host "INFO: WSL wurde erfolgreich installiert." -Fore Green
@@ -52,16 +52,16 @@ function Install-WSL {
 function Install-Ubuntu {
     Write-Host "INFO: Ubuntu wird installiert... bitte warten..." -Fore Yellow
 
-    Start-Process "wsl.exe" -ArgumentList "--install --web-download -d Ubuntu" -NoNewWindow
+    Start-Process "wsl.exe" -ArgumentList "--install --web-download -d Ubuntu" -NoNewWindow > $null
     Start-Sleep -Seconds 5
-    wsl --terminate "Ubuntu"
+    wsl --terminate "Ubuntu" | Out-Null
 
     # Warten, bis Ubuntu installiert wurde
     Write-Host "INFO: Warte auf die Installation von Ubuntu..." -Fore Yellow
 
     # Prüfen, ob die Ubuntu-Instanz verfügbar ist
     do {
-        Start-Sleep -Seconds 3
+        Start-Sleep -Seconds 1
         
         # Befehl ausführen
         $output = wsl -l | Where-Object { $_ -replace "`0","" -match '^Ubuntu' }
@@ -122,7 +122,7 @@ try {
 	Start-Sleep -Seconds 1
     Write-Host "READY: Öffne Portainer...https://localhost:9443/#!/init/admin - Installer wird geschlossen......" -Fore Green
     Start-Process cmd -ArgumentList '/c','start https://localhost:9443/#!/init/admin' # auto close
-    Start-Sleep -Seconds 10
+    Start-Sleep -Seconds 7
     Exit
 } catch {
     Write-Host "ERROR: Ein unerwarteter Fehler ist aufgetreten." -Fore Red
