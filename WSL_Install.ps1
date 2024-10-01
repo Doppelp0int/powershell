@@ -10,121 +10,79 @@ Write-Host "`n"
 Write-Host "                    -------------------------------------------------            " -ForegroundColor Cyan
 Write-Host "                    |                                               |            " -ForegroundColor Cyan
 Write-Host "                    |               WSL Installer                   |            " -ForegroundColor Cyan
-Write-Host "                    |          Version 1.4 -> 24.09.2024            |            " -ForegroundColor Cyan
+Write-Host "                    |          Version 2.1 -> 01.10.2024            |            " -ForegroundColor Cyan
 Write-Host "                    |                                               |            " -ForegroundColor Cyan
 Write-Host "                    |                                               |            " -ForegroundColor Cyan
 Write-Host "                    -------------------------------------------------            " -ForegroundColor Cyan
 Write-Host "`n"
 
 
+# Prüfen ob WSL bereits aktiviert ist
+$wslFeature = Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
 
-# Funktion zum Prüfen, ob WSL aktiviert ist
-function Check-WSL-Installation {
-    $wslFeature = Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
-    if ($wslFeature.State -eq "Enabled") {
-        Write-Host "INFO: WSL ist aktiviert." -Fore Green
-    } else {
-        Write-Host "INFO: WSL ist nicht aktiviert." -Fore Red
-        Install-WSL
-    }
+if ($wslFeature.State -eq "Enabled") {
+    Write-Host "WSL ist bereits aktiviert."
+} else {
+    Write-Host "WSL ist nicht aktiviert. WSL wird nun aktiviert..." -ForegroundColor Red
+    # WSL Feature aktivieren
+    Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart 
 }
-# Funktion zur deinstallation bei problemen.
-function Uninstall-WSL{
-	Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart | Out-Null
-	Disable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -NoRestart | Out-Null
-    wsl --uninstall
-    wsl --unregister ubuntu
+
+# Prüfen ob die Virtual Machine Platform (für WSL2 erforderlich) bereits aktiviert ist
+$vmFeature = Get-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform 
+
+if ($vmFeature.State -eq "Enabled") {
+    Write-Host "Die Virtual Machine Platform ist bereits aktiviert."
+} else {
+    Write-Host "Die Virtual Machine Platform wird aktiviert..."
+    # Virtual Machine Platform aktivieren (für WSL2 erforderlich)
+    Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -NoRestart 
 }
-# Funktion zur Installation von WSL
-function Install-WSL {
-    Write-Host "INFO: WSL wird installiert..." -Fore Yellow
-	Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -All -NoRestart | Out-Null
-	Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -All -NoRestart | Out-Null
-    # Setze WSL 2 als Standard
-        Start-Process "wsl.exe" -ArgumentList "--set-default-version 2" -NoNewWindow > $null
-            Write-Host "INFO: WSL wird aktuallisiert..." -Fore Yellow
-        Start-Process "wsl.exe" -ArgumentList "--update" -NoNewWindow -Wait | Out-Null
-         Start-Sleep -Seconds 20
 
-    Write-Host "INFO: WSL wurde erfolgreich installiert." -Fore Green
+# Neustart anfordern, falls eines der Features aktiviert wurde
+if (($wslFeature.State -ne "Enabled") -or ($vmFeature.State -ne "Enabled")) {
+    Write-Host "Bitte starte den Computer neu und führe das Skript danach erneut aus." -ForegroundColor Red
+    exit
 }
-# Funktion zur Installation von Ubuntu ohne Benutzererstellung
-function Install-Ubuntu {
-    Write-Host "INFO: Ubuntu wird installiert... bitte warten..." -Fore Yellow
 
-    Start-Process "wsl.exe" -ArgumentList "--install --web-download -d Ubuntu" -NoNewWindow > $null
-    Start-Sleep -Seconds 5
-    wsl --terminate "Ubuntu" | Out-Null
+# WSL2 als Standardversion setzen
+wsl --set-default-version 2
+Write-Host "WSL2 ist nun als Standardversion gesetzt."
 
-    # Warten, bis Ubuntu installiert wurde
-    Write-Host "INFO: Warte auf die Installation von Ubuntu..." -Fore Yellow
+# Ubuntu Installation mit dem neuen Web-Installationsbefehl (kein neues Fenster öffnen)
+Write-Host "Ubuntu wird nun installiert..."
 
-    # Prüfen, ob die Ubuntu-Instanz verfügbar ist
-    do {
-        Start-Sleep -Seconds 1
-        
-        # Befehl ausführen
-        $output = wsl -l | Where-Object { $_ -replace "`0","" -match '^Ubuntu' }
-        
-        # Prüfen, ob ein Ergebnis vorhanden ist
-        if ($output) {
-            Write-Host "INFO: Ubuntu gefunden. Skript wird fortgesetzt." -Fore Green
-            break # Schleife verlassen, wenn Bedingung erfüllt ist
-        } else {
-            Write-Host "INFO: Warten auf Ubuntu-Installation..." -Fore Yellow
-        }
-    } while ($true)
+# WSL Installationsprozess ohne neues Fenster
+Start-Process "wsl.exe" -ArgumentList "--update" -Wait #-NoNewWindow
+Start-Sleep -Seconds 8
+Start-Process "wsl.exe" -ArgumentList "--install -d Ubuntu --no-launch" -Wait #-NoNewWindow
+Start-Sleep -Seconds 3
+Start-Process "ubuntu.exe" -ArgumentList "install --root" -Wait #-NoNewWindow
+#Start-Sleep -Seconds 3
+#Start-Process "wsl.exe" -ArgumentList "-d ubuntu --user root" -Wait -NoNewWindow
 
-    # Download des Installationsskripts von GitHub und Ausführung
-    $scriptUrl = "https://raw.githubusercontent.com/Doppelp0int/batch/refs/heads/main/WSL_install_Docker.sh"
-    $outputPath = "C:\temp\WSL_install_Docker.sh"
-    Write-Host "INFO: Download des Installationsskripts von GitHub..." -Fore Yellow
-    Invoke-WebRequest -Uri $scriptUrl -OutFile $outputPath
-    # Führe das Skript in der WSL-Umgebung aus
-    wsl -u root bash -c "cd /mnt/c/temp && bash ./WSL_install_Docker.sh"
-    Write-Host "INFO: Installationsskript erfolgreich ausgeführt." -Fore Green
-    # Bereinige das Skript nach der Ausführung
-    try {
-        Remove-Item -Path $outputPath -Force
-        Write-Host "INFO: Skript erfolgreich gelöscht." -Fore Green
-		Start-Sleep -Seconds 1
-    } catch {
-        Write-Host "ERROR: Fehler beim Löschen des Skripts $outputPath." -Fore Red
-    }
-}
-# Hauptlogik des Skripts
-try {
-    # Überprüfen, ob WSL installiert ist
-    if (-not (Check-WSL-Installation)) {
-        Install-WSL
-    } else {
-        Write-Host "CHECK: WSL ist bereits aktiviert." -Fore Yellow
-    }
 
-    # Überprüfen, ob WSL ordnungsgemäß funktioniert
-    try {
-        wsl.exe --list --online | Out-Null
-        Write-Host "CHECK: WSL funktioniert einwandfrei!" -Fore Yellow
-    } catch {
-        Write-Host "CHECK: Problem mit WSL erkannt. Deinstallation wird durchgeführt." -Fore Red
-        Uninstall-WSL
-        Install-WSL
-    }
+# Warten bis Ubuntu initialisiert ist
+Start-Sleep -Seconds 10
 
-    # Installiere und konfiguriere Ubuntu
-    Install-Ubuntu
-	cls
-	Write-Host ""
-	Write-Host ""
-	Write-Host ""
-	Start-Sleep -Seconds 1
-    Write-Host "READY!: Ubuntu wurde erfolgreich installiert und eingerichtet." -Fore Green
-	Start-Sleep -Seconds 1
-    Write-Host "READY: Öffne Portainer...https://localhost:9443/#!/init/admin - Installer wird geschlossen......" -Fore Green
-    Start-Process cmd -ArgumentList '/c','start https://localhost:9443/#!/init/admin' # auto close
-    Start-Sleep -Seconds 7
-    Exit
-} catch {
-    Write-Host "ERROR: Ein unerwarteter Fehler ist aufgetreten." -Fore Red
-    throw $_
-}
+# Bash-Skript herunterladen und in WSL ausführen
+Write-Host "Bash-Skript wird heruntergeladen und ausgeführt..."
+$bashScriptUrl = "https://raw.githubusercontent.com/Doppelp0int/batch/refs/heads/main/WSL_install_Docker.sh"
+Start-Sleep -Seconds 3
+$bashScriptPath_Windows = "C:\Users\$env:USERNAME\Downloads\WSL_install_Docker.sh"
+$bashScriptPath = "/mnt/c/Users/$env:USERNAME/Downloads/WSL_install_Docker.sh"
+
+Invoke-WebRequest -Uri $bashScriptUrl -OutFile $bashScriptPath_Windows
+
+# Bash-Skript in WSL (Ubuntu) ausführen
+#Start-Process "wsl.exe" -ArgumentList "--exec 'bash $bashScriptPath'"
+wsl -e sh -c "/mnt/c/Users/David/Downloads/WSL_install_Docker.sh"
+#wsl -d Ubuntu bash $bashScriptPath
+Start-Process cmd -ArgumentList '/c','start ubuntu.exe' # auto close
+Start-Sleep -Seconds 3
+Start-Process cmd -ArgumentList '/c','start https://localhost:9443' # auto close
+Write-Host "Das Bash-Skript wurde erfolgreich ausgeführt." -ForegroundColor Green
+Remove-Item $bashScriptPath_Windows -Force
+Start-Sleep -Seconds 10
+Write-Host "DONE!! PowerShell Wizard schließt in 10 Sekunden!"-ForegroundColor Green
+Exit
