@@ -54,7 +54,7 @@ Write-Host "Ubuntu wird nun installiert..."
 
 # WSL Installationsprozess ohne neues Fenster
 Start-Process "wsl.exe" -ArgumentList "--update" -Wait #-NoNewWindow
-Start-Sleep -Seconds 8
+Start-Sleep -Seconds 3
 Start-Process "wsl.exe" -ArgumentList "--install -d Ubuntu --no-launch" -Wait #-NoNewWindow
 Start-Sleep -Seconds 3
 Start-Process "ubuntu.exe" -ArgumentList "install --root" -Wait #-NoNewWindow
@@ -63,7 +63,7 @@ Start-Process "ubuntu.exe" -ArgumentList "install --root" -Wait #-NoNewWindow
 
 
 # Warten bis Ubuntu initialisiert ist
-Start-Sleep -Seconds 10
+Start-Sleep -Seconds 3
 
 # Bash-Skript herunterladen und in WSL ausführen
 Write-Host "Bash-Skript wird heruntergeladen und ausgeführt..."
