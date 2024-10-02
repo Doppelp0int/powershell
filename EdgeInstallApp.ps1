@@ -6,10 +6,6 @@ ConvertTo-Json @(
         url                      = "https://d-velop.personio.de/"
     }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 667b6542abae497a715eb892490e137696d96709
 #
 #    @{
 #        create_desktop_shortcut  = $true
@@ -39,10 +35,6 @@ foreach($setting in $settings){
         $registry.SetValue($_.name, $_.value)
     }
     $registry.Dispose()
-<<<<<<< HEAD
 }
 
 #test
-=======
-}
->>>>>>> 667b6542abae497a715eb892490e137696d96709
