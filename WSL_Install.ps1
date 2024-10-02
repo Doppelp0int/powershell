@@ -10,7 +10,7 @@ Write-Host "`n"
 Write-Host "                    -------------------------------------------------            " -ForegroundColor Cyan
 Write-Host "                    |                                               |            " -ForegroundColor Cyan
 Write-Host "                    |               WSL Installer                   |            " -ForegroundColor Cyan
-Write-Host "                    |          Version 2.1 -> 01.10.2024            |            " -ForegroundColor Cyan
+Write-Host "                    |          Version 2.4 -> 01.10.2024            |            " -ForegroundColor Cyan
 Write-Host "                    |                                               |            " -ForegroundColor Cyan
 Write-Host "                    |                                               |            " -ForegroundColor Cyan
 Write-Host "                    -------------------------------------------------            " -ForegroundColor Cyan
@@ -76,7 +76,7 @@ Invoke-WebRequest -Uri $bashScriptUrl -OutFile $bashScriptPath_Windows
 
 # Bash-Skript in WSL (Ubuntu) ausführen
 #Start-Process "wsl.exe" -ArgumentList "--exec 'bash $bashScriptPath'"
-wsl -e sh -c "/mnt/c/Users/David/Downloads/WSL_install_Docker.sh"
+wsl -e sh -c $bashScriptPath
 #wsl -d Ubuntu bash $bashScriptPath
 Start-Process cmd -ArgumentList '/c','start ubuntu.exe' # auto close
 Start-Sleep -Seconds 3
