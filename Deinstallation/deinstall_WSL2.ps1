@@ -8,6 +8,8 @@ if ($wslFeature.State -eq "Disabled") {
 } else {
     Write-Host "WSL ist nicht deaktiviert. WSL wird nun deaktiviert..." -ForegroundColor Red
     # WSL Feature aktivieren
+    wsl.exe --unregister "Ubuntu"
+    ws.exe --uninstall
     Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart 
 }
 # Prüfen ob die Virtual Machine Platform (für WSL2 erforderlich) bereits aktiviert ist
@@ -17,10 +19,11 @@ if ($vmFeature.State -eq "Disabled") {
 } else {
     Write-Host "Die Virtual Machine Platform wird deaktiviert..."
     # Virtual Machine Platform aktivieren (für WSL2 erforderlich)
-    Disable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -NoRestart 
+    Disable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform
 }
 # Neustart anfordern, falls eines der Features aktiviert wurde
 if (($wslFeature.State -ne "Disabled") -or ($vmFeature.State -ne "Disabled")) {
     Write-Host "Bitte starte den Computer neu und führe das Skript danach erneut aus." -ForegroundColor DarkRed -BackgroundColor Yellow
+Start-Sleep -Seconds 7
     exit
 }
