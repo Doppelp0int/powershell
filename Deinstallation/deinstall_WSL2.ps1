@@ -8,7 +8,7 @@ if ($wslFeature.State -eq "Disabled") {
 } else {
     Write-Host "WSL ist nicht deaktiviert. WSL wird nun deaktiviert..." -ForegroundColor Red
     # WSL Feature aktivieren
-    wsl.exe --unregister "Ubuntu"
+    wsl.exe --unregister Ubuntu
     ws.exe --uninstall
     Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart 
 }
