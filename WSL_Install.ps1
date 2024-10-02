@@ -41,7 +41,7 @@ if ($vmFeature.State -eq "Enabled") {
 
 # Neustart anfordern, falls eines der Features aktiviert wurde
 if (($wslFeature.State -ne "Enabled") -or ($vmFeature.State -ne "Enabled")) {
-    Write-Host "Bitte starte den Computer neu und führe das Skript danach erneut aus." -ForegroundColor Red
+    Write-Host "Bitte starte den Computer neu und führe das Skript danach erneut aus." -ForegroundColor DarkRed -BackgroundColor Yellow
     exit
 }
 
@@ -81,8 +81,8 @@ wsl -e sh -c $bashScriptPath
 Start-Process cmd -ArgumentList '/c','start ubuntu.exe' # auto close
 Start-Sleep -Seconds 3
 Start-Process cmd -ArgumentList '/c','start https://localhost:9443' # auto close
-Write-Host "Das Bash-Skript wurde erfolgreich ausgeführt." -ForegroundColor Green
+Write-Host "Das Bash-Skript wurde erfolgreich ausgefuehrt." -ForegroundColor Green
 Remove-Item $bashScriptPath_Windows -Force
 Start-Sleep -Seconds 10
-Write-Host "DONE!! PowerShell Wizard schließt in 10 Sekunden!"-ForegroundColor Green
+Write-Host "DONE!! PowerShell Wizard schließt in 10 Sekunden!"-ForegroundColor White -BackgroundColor Green
 Exit
