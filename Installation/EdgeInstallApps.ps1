@@ -3,7 +3,7 @@ ConvertTo-Json @(
     @{
         create_desktop_shortcut  = $true
         default_launch_container = "window"  
-        url                      = "https://d-velop.personio.de/"
+        url                      = "https://TEST.de/"
     }
 
 #

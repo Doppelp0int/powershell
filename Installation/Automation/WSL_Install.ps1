@@ -36,7 +36,7 @@ if ($vmFeature.State -eq "Enabled") {
 } else {
     Write-Host "Die Virtual Machine Platform wird aktiviert..."
     # Virtual Machine Platform aktivieren (für WSL2 erforderlich)
-    Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -NoRestart 
+    Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform 
 }
 
 # Neustart anfordern, falls eines der Features aktiviert wurde
